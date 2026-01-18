@@ -1,0 +1,8 @@
+{
+  "name": "fleet-management-frontend",
+  "version": "1.0.0",
+  "description": "Fleet Management Pro - Frontend",
+  "scripts": {
+    "start": "python3 -m http.server 8080"
+  }
+}

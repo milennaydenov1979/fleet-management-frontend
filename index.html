@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Management Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #1a1f35 0%, #252b42 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+        }
+        .stat-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background: linear-gradient(135deg, #1a1f35 0%, #252b42 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid #334155;
+            margin-bottom: 2rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #1a1f35;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+        tr:hover {
+            background: #252b42;
+        }
+        .badge {
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin: 0 0.25rem;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .btn-warning:hover {
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f35 0%, #252b42 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .modal-title {
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+        .close:hover {
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            background: #0a0e1a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+            display: none;
+        }
+        .toast.show {
+            display: block;
+        }
+        .toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚛 Fleet Management Pro</h1>
+            <button class="btn" onclick="openAddModal()">➕ Добави машина</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-icon">🚛</div>
+                <div class="stat-label">Общо машини</div>
+                <div class="stat-value" id="totalVehicles">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Активни</div>
+                <div class="stat-value" id="activeVehicles">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">API Статус</div>
+                <div class="stat-value" id="apiStatus">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>🚛</span>
+                    Списък на машините
+                </div>
+            </div>
+            <div id="vehiclesTable" class="loading">Зареждане...</div>
+        </div>
+    </div>
+
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">➕ Добави машина</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="vehicleForm" onsubmit="saveVehicle(event)">
+                <input type="hidden" id="vehicleId">
+                
+                <div class="form-group">
+                    <label class="form-label">Регистрационен номер</label>
+                    <input type="text" id="regNumber" class="form-input" placeholder="СВ 1234 АВ" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Марка и модел</label>
+                    <input type="text" id="brand" class="form-input" placeholder="Volvo FH16" required>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // PRODUCTION API URL - в интернет!
+        const API_URL = 'https://fleet-management-backend-cwg4.onrender.com';
+        let currentVehicleId = null;
+
+        async function loadVehicles() {
+            try {
+                const response = await fetch(`${API_URL}/api/vehicles`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const vehicles = data.data;
+                    
+                    document.getElementById('totalVehicles').textContent = vehicles.length;
+                    document.getElementById('activeVehicles').textContent = vehicles.length;
+                    document.getElementById('apiStatus').textContent = '✓';
+
+                    const tableHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Регистрационен номер</th>
+                                    <th>Марка</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${vehicles.map(v => `
+                                    <tr>
+                                        <td><strong>#${v.id}</strong></td>
+                                        <td><strong>${v.reg_number || v.regNumber || 'N/A'}</strong></td>
+                                        <td>${v.brand}</td>
+                                        <td><span class="badge badge-success">Активна</span></td>
+                                        <td class="action-buttons">
+                                            <button class="btn btn-sm btn-warning" onclick='editVehicle(${v.id}, "${v.reg_number || v.regNumber}", "${v.brand}")'>✏️</button>
+                                            <button class="btn btn-sm btn-danger" onclick='deleteVehicle(${v.id}, "${v.reg_number || v.regNumber}")'>🗑️</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+
+                    document.getElementById('vehiclesTable').innerHTML = tableHTML;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('vehiclesTable').innerHTML = `
+                    <div class="loading" style="color: #ef4444;">
+                        ❌ Грешка при свързване с API
+                    </div>
+                `;
+                document.getElementById('apiStatus').textContent = '❌';
+            }
+        }
+
+        function openAddModal() {
+            currentVehicleId = null;
+            document.getElementById('modalTitle').textContent = '➕ Добави машина';
+            document.getElementById('vehicleForm').reset();
+            document.getElementById('vehicleModal').classList.add('show');
+        }
+
+        function editVehicle(id, regNumber, brand) {
+            currentVehicleId = id;
+            document.getElementById('modalTitle').textContent = '✏️ Редактирай машина';
+            document.getElementById('regNumber').value = regNumber;
+            document.getElementById('brand').value = brand;
+            document.getElementById('vehicleModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('vehicleModal').classList.remove('show');
+        }
+
+        async function saveVehicle(event) {
+            event.preventDefault();
+            
+            const regNumber = document.getElementById('regNumber').value;
+            const brand = document.getElementById('brand').value;
+
+            try {
+                const url = currentVehicleId 
+                    ? `${API_URL}/api/vehicles/${currentVehicleId}` 
+                    : `${API_URL}/api/vehicles`;
+                const method = currentVehicleId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ regNumber, brand })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(currentVehicleId ? '✅ Обновена!' : '✅ Добавена!');
+                    closeModal();
+                    loadVehicles();
+                }
+            } catch (error) {
+                showToast('❌ Грешка', 'error');
+            }
+        }
+
+        async function deleteVehicle(id, regNumber) {
+            if (!confirm(`Изтрий ${regNumber}?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/vehicles/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('✅ Изтрита!');
+                    loadVehicles();
+                }
+            } catch (error) {
+                showToast('❌ Грешка', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (type === 'error' ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        window.onclick = function(event) {
+            if (event.target.id === 'vehicleModal') closeModal();
+        }
+
+        loadVehicles();
+        setInterval(loadVehicles, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>
