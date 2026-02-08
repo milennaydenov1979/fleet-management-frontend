@@ -394,19 +394,19 @@
                     <div class="stat-value" id="totalTrips">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">🚀</div>
-                    <div class="stat-label">Активни</div>
-                    <div class="stat-value" id="activeTrips">-</div>
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Приходи (EUR)</div>
+                    <div class="stat-value" id="totalRevenue">-</div>
+                </div>
+                <div class="stat-card profit">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-label">Печалба (EUR)</div>
+                    <div class="stat-value profit-value" id="totalProfit">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">✅</div>
-                    <div class="stat-label">Завършени</div>
-                    <div class="stat-value" id="completedTrips">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📏</div>
-                    <div class="stat-label">Общо км</div>
-                    <div class="stat-value" id="totalKm">-</div>
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Марж %</div>
+                    <div class="stat-value" id="avgMargin">-</div>
                 </div>
             </div>
             <div class="card">
@@ -592,6 +592,44 @@
                     <label class="form-label">Бележки</label>
                     <input type="text" id="tripNotes" class="form-input" placeholder="Товар: строителни материали">
                 </div>
+                
+                <div style="border-top: 1px solid #334155; margin: 2rem 0; padding-top: 1.5rem;">
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #3b82f6; margin-bottom: 1rem;">💰 Финансови данни</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Цена на курса (EUR)</label>
+                            <input type="number" step="0.01" id="tripPrice" class="form-input" placeholder="500.00" onchange="calculateTripProfit()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Разход гориво (EUR)</label>
+                            <input type="number" step="0.01" id="tripFuelCost" class="form-input" placeholder="150.00" onchange="calculateTripProfit()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Разход водач (EUR)</label>
+                            <input type="number" step="0.01" id="tripDriverCost" class="form-input" placeholder="100.00" onchange="calculateTripProfit()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Други разходи (EUR)</label>
+                            <input type="number" step="0.01" id="tripOtherCosts" class="form-input" placeholder="50.00" onchange="calculateTripProfit()">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Общо разходи (EUR)</label>
+                            <input type="number" step="0.01" id="tripTotalCosts" class="form-input" readonly style="background: #1a1f35;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Печалба (EUR)</label>
+                            <input type="number" step="0.01" id="tripProfit" class="form-input" readonly style="background: #1a1f35;">
+                        </div>
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
             </form>
         </div>
@@ -836,39 +874,48 @@
                         var activeCount = 0;
                         var completedCount = 0;
                         var totalDistance = 0;
+                        var totalRevenue = 0;
+                        var totalProfit = 0;
                         
                         for (var i = 0; i < trips.length; i++) {
                             if (trips[i].status === 'active') activeCount++;
                             if (trips[i].status === 'completed') completedCount++;
                             if (trips[i].distance_km) totalDistance += parseFloat(trips[i].distance_km);
+                            if (trips[i].price) totalRevenue += parseFloat(trips[i].price);
+                            if (trips[i].profit) totalProfit += parseFloat(trips[i].profit);
                         }
                         
                         document.getElementById('activeTrips').textContent = activeCount;
                         document.getElementById('completedTrips').textContent = completedCount;
                         document.getElementById('totalKm').textContent = Math.round(totalDistance);
+                        document.getElementById('totalRevenue').textContent = Math.round(totalRevenue) + ' €';
+                        document.getElementById('totalProfit').textContent = Math.round(totalProfit) + ' €';
+                        
+                        var avgMargin = totalRevenue > 0 ? ((totalProfit / totalRevenue) * 100).toFixed(1) : 0;
+                        document.getElementById('avgMargin').textContent = avgMargin + '%';
                         
                         if (trips.length === 0) {
                             document.getElementById('tripsTable').innerHTML = '<div class="loading">Няма записани курсове</div>';
                             return;
                         }
                         
-                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Водач</th><th>Начало</th><th>Край</th><th>Км</th><th>Маршрут</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Маршрут</th><th>Км</th><th>Цена</th><th>Печалба</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
                         
                         for (var i = 0; i < trips.length; i++) {
                             var t = trips[i];
-                            var startDate = new Date(t.start_time).toLocaleString('bg-BG');
-                            var endDate = t.end_time ? new Date(t.end_time).toLocaleString('bg-BG') : '-';
                             var statusBadge = t.status === 'completed' ? 'badge-success' : 'badge-warning';
                             var statusText = t.status === 'completed' ? 'Завършен' : 'Активен';
+                            var price = t.price ? parseFloat(t.price).toFixed(2) + ' €' : '-';
+                            var profit = t.profit ? parseFloat(t.profit).toFixed(2) + ' €' : '-';
+                            var profitBadge = t.profit > 0 ? 'badge-success' : (t.profit < 0 ? 'badge-danger' : 'badge-warning');
                             
                             html += '<tr>';
                             html += '<td><strong>#' + t.id + '</strong></td>';
                             html += '<td><span class="badge badge-info">' + (t.vehicle_reg_number || 'N/A') + '</span></td>';
-                            html += '<td>' + (t.driver_name || 'N/A') + '</td>';
-                            html += '<td>' + startDate + '</td>';
-                            html += '<td>' + endDate + '</td>';
-                            html += '<td><strong>' + (t.distance_km ? Math.round(t.distance_km) + ' км' : '-') + '</strong></td>';
                             html += '<td>' + (t.route || '-') + '</td>';
+                            html += '<td><strong>' + (t.distance_km ? Math.round(t.distance_km) + ' км' : '-') + '</strong></td>';
+                            html += '<td><strong>' + price + '</strong></td>';
+                            html += '<td><span class="badge ' + profitBadge + '">' + profit + '</span></td>';
                             html += '<td><span class="badge ' + statusBadge + '">' + statusText + '</span></td>';
                             html += '<td class="action-buttons">';
                             html += '<button class="btn btn-sm btn-warning" onclick=\'editTrip(' + JSON.stringify(t) + ')\'>✏️</button>';
@@ -1217,12 +1264,32 @@
                 document.getElementById('tripRoute').value = trip.route || '';
                 document.getElementById('tripNotes').value = trip.notes || '';
                 
+                document.getElementById('tripPrice').value = trip.price || '';
+                document.getElementById('tripFuelCost').value = trip.fuel_cost || '';
+                document.getElementById('tripDriverCost').value = trip.driver_cost || '';
+                document.getElementById('tripOtherCosts').value = trip.other_costs || '';
+                document.getElementById('tripTotalCosts').value = trip.total_costs || '';
+                document.getElementById('tripProfit').value = trip.profit || '';
+                
                 document.getElementById('tripModal').classList.add('show');
             });
         }
 
         function closeTripModal() {
             document.getElementById('tripModal').classList.remove('show');
+        }
+
+        function calculateTripProfit() {
+            var price = parseFloat(document.getElementById('tripPrice').value) || 0;
+            var fuelCost = parseFloat(document.getElementById('tripFuelCost').value) || 0;
+            var driverCost = parseFloat(document.getElementById('tripDriverCost').value) || 0;
+            var otherCosts = parseFloat(document.getElementById('tripOtherCosts').value) || 0;
+            
+            var totalCosts = fuelCost + driverCost + otherCosts;
+            var profit = price - totalCosts;
+            
+            document.getElementById('tripTotalCosts').value = totalCosts.toFixed(2);
+            document.getElementById('tripProfit').value = profit.toFixed(2);
         }
 
         function saveTrip(event) {
@@ -1236,7 +1303,11 @@
                 startOdometer: parseInt(document.getElementById('tripStartOdometer').value) || null,
                 endOdometer: parseInt(document.getElementById('tripEndOdometer').value) || null,
                 route: document.getElementById('tripRoute').value,
-                notes: document.getElementById('tripNotes').value
+                notes: document.getElementById('tripNotes').value,
+                price: parseFloat(document.getElementById('tripPrice').value) || null,
+                fuelCost: parseFloat(document.getElementById('tripFuelCost').value) || null,
+                driverCost: parseFloat(document.getElementById('tripDriverCost').value) || null,
+                otherCosts: parseFloat(document.getElementById('tripOtherCosts').value) || null
             };
             
             var url = currentTripId ? API_URL + '/api/trips/' + currentTripId : API_URL + '/api/trips';
