@@ -17,8 +17,9 @@
             border-bottom: 1px solid #334155;
             padding: 1rem 2rem;
             display: flex;
-            gap: 2rem;
+            gap: 1rem;
             align-items: center;
+            overflow-x: auto;
         }
         .nav-logo {
             font-size: 1.5rem;
@@ -26,15 +27,18 @@
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            white-space: nowrap;
         }
-        .nav-tabs { display: flex; gap: 1rem; flex: 1; }
+        .nav-tabs { display: flex; gap: 0.5rem; flex: 1; }
         .nav-tab {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
             border: 1px solid transparent;
+            white-space: nowrap;
+            font-size: 0.9rem;
         }
         .nav-tab:hover {
             background: rgba(59, 130, 246, 0.1);
@@ -267,15 +271,17 @@
             color: #94a3b8;
         }
         .action-buttons { display: flex; gap: 0.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     </style>
 </head>
 <body>
     <div class="nav">
-        <div class="nav-logo">🚛 Fleet Management Pro</div>
+        <div class="nav-logo">🚛 Fleet Pro</div>
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="switchPage('vehicles')">🚛 Машини</div>
             <div class="nav-tab" onclick="switchPage('drivers')">👨‍✈️ Водачи</div>
             <div class="nav-tab" onclick="switchPage('assignments')">🔗 Назначения</div>
+            <div class="nav-tab" onclick="switchPage('trips')">📍 Курсове</div>
         </div>
     </div>
 
@@ -372,9 +378,45 @@
                 <div id="assignmentsTable" class="loading">Зареждане...</div>
             </div>
         </div>
+
+        <!-- TRIPS PAGE -->
+        <div id="trips-page" class="page">
+            <div class="header">
+                <h1>Курсове</h1>
+                <button class="btn" onclick="openAddTripModal()">➕ Нов курс</button>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📍</div>
+                    <div class="stat-label">Общо курсове</div>
+                    <div class="stat-value" id="totalTrips">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚀</div>
+                    <div class="stat-label">Активни</div>
+                    <div class="stat-value" id="activeTrips">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Завършени</div>
+                    <div class="stat-value" id="completedTrips">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-label">Общо км</div>
+                    <div class="stat-value" id="totalKm">-</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>📍</span> История на курсовете</div>
+                </div>
+                <div id="tripsTable" class="loading">Зареждане...</div>
+            </div>
+        </div>
     </div>
 
-    <!-- VEHICLE MODAL -->
+    <!-- MODALS -->
     <div id="vehicleModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -396,7 +438,6 @@
         </div>
     </div>
 
-    <!-- DRIVER MODAL -->
     <div id="driverModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -437,7 +478,6 @@
         </div>
     </div>
 
-    <!-- ASSIGNMENT MODAL -->
     <div id="assignmentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -459,9 +499,62 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Бележки (опционално)</label>
-                    <input type="text" id="assignNotes" class="form-input" placeholder="Например: Дълъг курс София-Варна">
+                    <input type="text" id="assignNotes" class="form-input" placeholder="Дълъг курс София-Варна">
                 </div>
                 <button type="submit" class="btn" style="width: 100%;">✅ Назначи</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="tripModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="tripModalTitle">➕ Нов курс</h2>
+                <span class="close" onclick="closeTripModal()">&times;</span>
+            </div>
+            <form id="tripForm" onsubmit="saveTrip(event)">
+                <input type="hidden" id="tripId">
+                <div class="form-group">
+                    <label class="form-label">Машина</label>
+                    <select id="tripVehicleId" class="form-select" required>
+                        <option value="">Избери машина</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Водач</label>
+                    <select id="tripDriverId" class="form-select" required>
+                        <option value="">Избери водач</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Начало</label>
+                        <input type="datetime-local" id="tripStartTime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Край (опционално)</label>
+                        <input type="datetime-local" id="tripEndTime" class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Начален км</label>
+                        <input type="number" id="tripStartOdometer" class="form-input" placeholder="12500">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Краен км</label>
+                        <input type="number" id="tripEndOdometer" class="form-input" placeholder="12850">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Маршрут</label>
+                    <input type="text" id="tripRoute" class="form-input" placeholder="София - Пловдив - Бургас">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Бележки</label>
+                    <input type="text" id="tripNotes" class="form-input" placeholder="Товар: строителни материали">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
             </form>
         </div>
     </div>
@@ -472,9 +565,11 @@
         var API_URL = 'https://fleet-management-backend-cwg4.onrender.com';
         var currentVehicleId = null;
         var currentDriverId = null;
+        var currentTripId = null;
         var allVehicles = [];
         var allDrivers = [];
         var allAssignments = [];
+        var allTrips = [];
 
         function switchPage(page) {
             var pages = document.querySelectorAll('.page');
@@ -499,6 +594,10 @@
                 document.getElementById('assignments-page').classList.add('active');
                 tabs[2].classList.add('active');
                 loadAssignments();
+            } else if (page === 'trips') {
+                document.getElementById('trips-page').classList.add('active');
+                tabs[3].classList.add('active');
+                loadTrips();
             }
         }
 
@@ -553,7 +652,6 @@
                         }
                         document.getElementById('activeDrivers').textContent = activeCount;
                         
-                        // Load assignments to count assigned drivers
                         fetch(API_URL + '/api/assignments')
                             .then(function(response) { return response.json(); })
                             .then(function(assignData) {
@@ -628,6 +726,67 @@
                 .catch(function(error) {
                     console.error('Error:', error);
                     document.getElementById('assignmentsTable').innerHTML = '<div class="loading" style="color: #ef4444;">❌ Грешка при свързване с API</div>';
+                });
+        }
+
+        function loadTrips() {
+            fetch(API_URL + '/api/trips')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        allTrips = data.data;
+                        document.getElementById('totalTrips').textContent = allTrips.length;
+                        
+                        var activeCount = 0;
+                        var completedCount = 0;
+                        var totalDistance = 0;
+                        
+                        for (var i = 0; i < allTrips.length; i++) {
+                            if (allTrips[i].status === 'active') activeCount++;
+                            if (allTrips[i].status === 'completed') completedCount++;
+                            if (allTrips[i].distance_km) totalDistance += parseFloat(allTrips[i].distance_km);
+                        }
+                        
+                        document.getElementById('activeTrips').textContent = activeCount;
+                        document.getElementById('completedTrips').textContent = completedCount;
+                        document.getElementById('totalKm').textContent = Math.round(totalDistance);
+                        
+                        if (allTrips.length === 0) {
+                            document.getElementById('tripsTable').innerHTML = '<div class="loading">Няма записани курсове</div>';
+                            return;
+                        }
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Водач</th><th>Начало</th><th>Край</th><th>Км</th><th>Маршрут</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+                        
+                        for (var i = 0; i < allTrips.length; i++) {
+                            var t = allTrips[i];
+                            var startDate = new Date(t.start_time).toLocaleString('bg-BG');
+                            var endDate = t.end_time ? new Date(t.end_time).toLocaleString('bg-BG') : '-';
+                            var statusBadge = t.status === 'completed' ? 'badge-success' : 'badge-warning';
+                            var statusText = t.status === 'completed' ? 'Завършен' : 'Активен';
+                            
+                            html += '<tr>';
+                            html += '<td><strong>#' + t.id + '</strong></td>';
+                            html += '<td><span class="badge badge-info">' + (t.vehicle_reg_number || 'N/A') + '</span></td>';
+                            html += '<td>' + (t.driver_name || 'N/A') + '</td>';
+                            html += '<td>' + startDate + '</td>';
+                            html += '<td>' + endDate + '</td>';
+                            html += '<td><strong>' + (t.distance_km ? Math.round(t.distance_km) + ' км' : '-') + '</strong></td>';
+                            html += '<td>' + (t.route || '-') + '</td>';
+                            html += '<td><span class="badge ' + statusBadge + '">' + statusText + '</span></td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-warning" onclick=\'editTrip(' + JSON.stringify(t) + ')\'>✏️</button>';
+                            html += '<button class="btn btn-sm btn-danger" onclick="deleteTrip(' + t.id + ')">🗑️</button>';
+                            html += '</td></tr>';
+                        }
+                        
+                        html += '</tbody></table>';
+                        document.getElementById('tripsTable').innerHTML = html;
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    document.getElementById('tripsTable').innerHTML = '<div class="loading" style="color: #ef4444;">❌ Грешка при свързване с API</div>';
                 });
         }
 
@@ -759,7 +918,6 @@
         }
 
         function openAddAssignmentModal() {
-            // Load available vehicles and drivers
             Promise.all([
                 fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
                 fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); }),
@@ -769,11 +927,9 @@
                 var drivers = results[1].data || [];
                 var assignments = results[2].data || [];
                 
-                // Get assigned vehicle and driver IDs
                 var assignedVehicleIds = assignments.map(function(a) { return a.vehicle_id; });
                 var assignedDriverIds = assignments.map(function(a) { return a.driver_id; });
                 
-                // Populate vehicle dropdown with only available vehicles
                 var vehicleSelect = document.getElementById('assignVehicleId');
                 vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
                 for (var i = 0; i < vehicles.length; i++) {
@@ -784,7 +940,6 @@
                     }
                 }
                 
-                // Populate driver dropdown with only available drivers
                 var driverSelect = document.getElementById('assignDriverId');
                 driverSelect.innerHTML = '<option value="">Избери водач</option>';
                 for (var i = 0; i < drivers.length; i++) {
@@ -822,7 +977,7 @@
                     showToast('✅ Назначено!');
                     closeAssignmentModal();
                     loadAssignments();
-                    loadDrivers(); // Refresh to update assigned count
+                    loadDrivers();
                 }
             })
             .catch(function(error) {
@@ -842,12 +997,151 @@
                 if (data.success) {
                     showToast('✅ Назначението е прекратено!');
                     loadAssignments();
-                    loadDrivers(); // Refresh to update assigned count
+                    loadDrivers();
                 }
             })
             .catch(function(error) {
                 showToast('❌ Грешка', 'error');
             });
+        }
+
+        function openAddTripModal() {
+            currentTripId = null;
+            document.getElementById('tripModalTitle').textContent = '➕ Нов курс';
+            
+            Promise.all([
+                fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); })
+            ]).then(function(results) {
+                var vehicles = results[0].data || [];
+                var drivers = results[1].data || [];
+                
+                var vehicleSelect = document.getElementById('tripVehicleId');
+                vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                for (var i = 0; i < vehicles.length; i++) {
+                    var v = vehicles[i];
+                    var regNum = v.reg_number || v.regNumber || 'N/A';
+                    vehicleSelect.innerHTML += '<option value="' + v.id + '">' + regNum + ' - ' + v.brand + '</option>';
+                }
+                
+                var driverSelect = document.getElementById('tripDriverId');
+                driverSelect.innerHTML = '<option value="">Избери водач</option>';
+                for (var i = 0; i < drivers.length; i++) {
+                    var d = drivers[i];
+                    driverSelect.innerHTML += '<option value="' + d.id + '">' + d.name + '</option>';
+                }
+                
+                document.getElementById('tripForm').reset();
+                var now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('tripStartTime').value = now.toISOString().slice(0, 16);
+                
+                document.getElementById('tripModal').classList.add('show');
+            });
+        }
+
+        function editTrip(trip) {
+            currentTripId = trip.id;
+            document.getElementById('tripModalTitle').textContent = '✏️ Редактирай курс';
+            
+            Promise.all([
+                fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); })
+            ]).then(function(results) {
+                var vehicles = results[0].data || [];
+                var drivers = results[1].data || [];
+                
+                var vehicleSelect = document.getElementById('tripVehicleId');
+                vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                for (var i = 0; i < vehicles.length; i++) {
+                    var v = vehicles[i];
+                    var regNum = v.reg_number || v.regNumber || 'N/A';
+                    vehicleSelect.innerHTML += '<option value="' + v.id + '"' + (v.id === trip.vehicle_id ? ' selected' : '') + '>' + regNum + ' - ' + v.brand + '</option>';
+                }
+                
+                var driverSelect = document.getElementById('tripDriverId');
+                driverSelect.innerHTML = '<option value="">Избери водач</option>';
+                for (var i = 0; i < drivers.length; i++) {
+                    var d = drivers[i];
+                    driverSelect.innerHTML += '<option value="' + d.id + '"' + (d.id === trip.driver_id ? ' selected' : '') + '>' + d.name + '</option>';
+                }
+                
+                document.getElementById('tripVehicleId').value = trip.vehicle_id;
+                document.getElementById('tripDriverId').value = trip.driver_id;
+                
+                var startDate = new Date(trip.start_time);
+                startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+                document.getElementById('tripStartTime').value = startDate.toISOString().slice(0, 16);
+                
+                if (trip.end_time) {
+                    var endDate = new Date(trip.end_time);
+                    endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+                    document.getElementById('tripEndTime').value = endDate.toISOString().slice(0, 16);
+                } else {
+                    document.getElementById('tripEndTime').value = '';
+                }
+                
+                document.getElementById('tripStartOdometer').value = trip.start_odometer || '';
+                document.getElementById('tripEndOdometer').value = trip.end_odometer || '';
+                document.getElementById('tripRoute').value = trip.route || '';
+                document.getElementById('tripNotes').value = trip.notes || '';
+                
+                document.getElementById('tripModal').classList.add('show');
+            });
+        }
+
+        function closeTripModal() {
+            document.getElementById('tripModal').classList.remove('show');
+        }
+
+        function saveTrip(event) {
+            event.preventDefault();
+            
+            var tripData = {
+                vehicleId: parseInt(document.getElementById('tripVehicleId').value),
+                driverId: parseInt(document.getElementById('tripDriverId').value),
+                startTime: document.getElementById('tripStartTime').value,
+                endTime: document.getElementById('tripEndTime').value || null,
+                startOdometer: parseInt(document.getElementById('tripStartOdometer').value) || null,
+                endOdometer: parseInt(document.getElementById('tripEndOdometer').value) || null,
+                route: document.getElementById('tripRoute').value,
+                notes: document.getElementById('tripNotes').value
+            };
+            
+            var url = currentTripId ? API_URL + '/api/trips/' + currentTripId : API_URL + '/api/trips';
+            var method = currentTripId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tripData)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(currentTripId ? '✅ Обновен!' : '✅ Добавен!');
+                    closeTripModal();
+                    loadTrips();
+                }
+            })
+            .catch(function(error) {
+                showToast('❌ Грешка', 'error');
+            });
+        }
+
+        function deleteTrip(id) {
+            if (!confirm('Изтрий този курс?')) return;
+            fetch(API_URL + '/api/trips/' + id, { method: 'DELETE' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('✅ Изтрит!');
+                        loadTrips();
+                    }
+                })
+                .catch(function(error) {
+                    showToast('❌ Грешка', 'error');
+                });
         }
 
         function showToast(message, type) {
@@ -864,6 +1158,7 @@
             if (event.target.id === 'vehicleModal') closeVehicleModal();
             if (event.target.id === 'driverModal') closeDriverModal();
             if (event.target.id === 'assignmentModal') closeAssignmentModal();
+            if (event.target.id === 'tripModal') closeTripModal();
         }
 
         loadVehicles();
