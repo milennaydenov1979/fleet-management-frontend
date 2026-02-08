@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Management Pro - EUR</title>
+    <title>Fleet Management Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -82,7 +82,6 @@
             border-color: #3b82f6;
             box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
         }
-        .stat-card.profit { border-color: #10b981; }
         .stat-icon { font-size: 2.5rem; margin-bottom: 1rem; }
         .stat-label {
             font-size: 0.875rem;
@@ -95,11 +94,6 @@
             font-size: 2.5rem;
             font-weight: 800;
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .stat-value.profit-value {
-            background: linear-gradient(135deg, #10b981, #059669);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -205,7 +199,7 @@
             padding: 2.5rem;
             border-radius: 20px;
             border: 1px solid #334155;
-            max-width: 600px;
+            max-width: 500px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -253,9 +247,6 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-        .form-input:read-only {
-            background: #1a1f35;
-        }
         .toast {
             position: fixed;
             bottom: 2rem;
@@ -297,9 +288,11 @@
     </div>
 
     <div class="container">
+        <!-- VEHICLES PAGE -->
         <div id="vehicles-page" class="page active">
             <div class="header">
                 <h1>Машини</h1>
+                <button class="btn" onclick="openAddVehicleModal()">➕ Добави машина</button>
             </div>
             <div class="stats">
                 <div class="stat-card">
@@ -307,29 +300,92 @@
                     <div class="stat-label">Общо машини</div>
                     <div class="stat-value" id="totalVehicles">-</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Активни</div>
+                    <div class="stat-value" id="activeVehicles">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">API Статус</div>
+                    <div class="stat-value" id="apiStatus">-</div>
+                </div>
             </div>
             <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>🚛</span> Списък на машините</div>
+                </div>
                 <div id="vehiclesTable" class="loading">Зареждане...</div>
             </div>
         </div>
 
+        <!-- DRIVERS PAGE -->
         <div id="drivers-page" class="page">
             <div class="header">
                 <h1>Водачи</h1>
+                <button class="btn" onclick="openAddDriverModal()">➕ Добави водач</button>
             </div>
-            <div id="driversTable" class="loading">Зареждане...</div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍✈️</div>
+                    <div class="stat-label">Общо водачи</div>
+                    <div class="stat-value" id="totalDrivers">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Активни</div>
+                    <div class="stat-value" id="activeDrivers">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚛</div>
+                    <div class="stat-label">Назначени</div>
+                    <div class="stat-value" id="assignedDrivers">-</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>👨‍✈️</span> Списък на водачите</div>
+                </div>
+                <div id="driversTable" class="loading">Зареждане...</div>
+            </div>
         </div>
 
+        <!-- ASSIGNMENTS PAGE -->
         <div id="assignments-page" class="page">
             <div class="header">
                 <h1>Назначения</h1>
+                <button class="btn" onclick="openAddAssignmentModal()">➕ Ново назначение</button>
             </div>
-            <div id="assignmentsTable" class="loading">Зареждане...</div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🔗</div>
+                    <div class="stat-label">Активни назначения</div>
+                    <div class="stat-value" id="totalAssignments">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚛</div>
+                    <div class="stat-label">Заети машини</div>
+                    <div class="stat-value" id="assignedVehicles">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍✈️</div>
+                    <div class="stat-label">Заети водачи</div>
+                    <div class="stat-value" id="assignedDriversCount">-</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>🔗</span> Активни назначения</div>
+                </div>
+                <div id="assignmentsTable" class="loading">Зареждане...</div>
+            </div>
         </div>
 
+        <!-- TRIPS PAGE -->
         <div id="trips-page" class="page">
             <div class="header">
                 <h1>Курсове</h1>
+                <button class="btn" onclick="openAddTripModal()">➕ Нов курс</button>
             </div>
             <div class="stats">
                 <div class="stat-card">
@@ -338,22 +394,34 @@
                     <div class="stat-value" id="totalTrips">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-label">Приходи</div>
-                    <div class="stat-value" id="totalRevenue">-</div>
+                    <div class="stat-icon">🚀</div>
+                    <div class="stat-label">Активни</div>
+                    <div class="stat-value" id="activeTrips">-</div>
                 </div>
-                <div class="stat-card profit">
-                    <div class="stat-icon">📈</div>
-                    <div class="stat-label">Печалба</div>
-                    <div class="stat-value profit-value" id="totalProfit">-</div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Завършени</div>
+                    <div class="stat-value" id="completedTrips">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-label">Общо км</div>
+                    <div class="stat-value" id="totalKm">-</div>
                 </div>
             </div>
-            <div id="tripsTable" class="loading">Зареждане...</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>📍</span> История на курсовете</div>
+                </div>
+                <div id="tripsTable" class="loading">Зареждане...</div>
+            </div>
         </div>
 
+        <!-- FUEL PAGE -->
         <div id="fuel-page" class="page">
             <div class="header">
                 <h1>Гориво</h1>
+                <button class="btn" onclick="openAddFuelModal()">➕ Ново зареждане</button>
             </div>
             <div class="stats">
                 <div class="stat-card">
@@ -377,7 +445,214 @@
                     <div class="stat-value" id="avgPrice">-</div>
                 </div>
             </div>
-            <div id="fuelTable" class="loading">Зареждане...</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span>⛽</span> История на зареждания</div>
+                </div>
+                <div id="fuelTable" class="loading">Зареждане...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS (continuing in next part due to length) -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="vehicleModalTitle">➕ Добави машина</h2>
+                <span class="close" onclick="closeVehicleModal()">&times;</span>
+            </div>
+            <form id="vehicleForm" onsubmit="saveVehicle(event)">
+                <input type="hidden" id="vehicleId">
+                <div class="form-group">
+                    <label class="form-label">Регистрационен номер</label>
+                    <input type="text" id="regNumber" class="form-input" placeholder="СВ 1234 АВ" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Марка и модел</label>
+                    <input type="text" id="brand" class="form-input" placeholder="Volvo FH16" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="driverModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="driverModalTitle">➕ Добави водач</h2>
+                <span class="close" onclick="closeDriverModal()">&times;</span>
+            </div>
+            <form id="driverForm" onsubmit="saveDriver(event)">
+                <input type="hidden" id="driverId">
+                <div class="form-group">
+                    <label class="form-label">Име и фамилия</label>
+                    <input type="text" id="driverName" class="form-input" placeholder="Иван Петров" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Телефон</label>
+                    <input type="tel" id="driverPhone" class="form-input" placeholder="+359888123456">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Номер на книжка</label>
+                    <input type="text" id="licenseNumber" class="form-input" placeholder="BG12345678">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Категория</label>
+                    <select id="licenseCategory" class="form-select">
+                        <option value="">Избери категория</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="C+E">C+E</option>
+                        <option value="CE">CE</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Дата на наемане</label>
+                    <input type="date" id="hireDate" class="form-input">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="assignmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Ново назначение</h2>
+                <span class="close" onclick="closeAssignmentModal()">&times;</span>
+            </div>
+            <form id="assignmentForm" onsubmit="saveAssignment(event)">
+                <div class="form-group">
+                    <label class="form-label">Машина</label>
+                    <select id="assignVehicleId" class="form-select" required>
+                        <option value="">Избери машина</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Водач</label>
+                    <select id="assignDriverId" class="form-select" required>
+                        <option value="">Избери водач</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Бележки (опционално)</label>
+                    <input type="text" id="assignNotes" class="form-input" placeholder="Дълъг курс София-Варна">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">✅ Назначи</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="tripModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="tripModalTitle">➕ Нов курс</h2>
+                <span class="close" onclick="closeTripModal()">&times;</span>
+            </div>
+            <form id="tripForm" onsubmit="saveTrip(event)">
+                <input type="hidden" id="tripId">
+                <div class="form-group">
+                    <label class="form-label">Машина</label>
+                    <select id="tripVehicleId" class="form-select" required>
+                        <option value="">Избери машина</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Водач</label>
+                    <select id="tripDriverId" class="form-select" required>
+                        <option value="">Избери водач</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Начало</label>
+                        <input type="datetime-local" id="tripStartTime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Край (опционално)</label>
+                        <input type="datetime-local" id="tripEndTime" class="form-input">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Начален км</label>
+                        <input type="number" id="tripStartOdometer" class="form-input" placeholder="12500">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Краен км</label>
+                        <input type="number" id="tripEndOdometer" class="form-input" placeholder="12850">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Маршрут</label>
+                    <input type="text" id="tripRoute" class="form-input" placeholder="София - Пловдив - Бургас">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Бележки</label>
+                    <input type="text" id="tripNotes" class="form-input" placeholder="Товар: строителни материали">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="fuelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="fuelModalTitle">➕ Ново зареждане</h2>
+                <span class="close" onclick="closeFuelModal()">&times;</span>
+            </div>
+            <form id="fuelForm" onsubmit="saveFuel(event)">
+                <input type="hidden" id="fuelId">
+                <div class="form-group">
+                    <label class="form-label">Машина</label>
+                    <select id="fuelVehicleId" class="form-select" required>
+                        <option value="">Избери машина</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Дата и час</label>
+                    <input type="datetime-local" id="fuelDate" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Литри</label>
+                        <input type="number" step="0.01" id="fuelLiters" class="form-input" placeholder="150.00" required onchange="calculateTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Цена/литър (лв)</label>
+                        <input type="number" step="0.01" id="fuelPricePerLiter" class="form-input" placeholder="2.89" required onchange="calculateTotal()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Обща сума (лв)</label>
+                    <input type="number" step="0.01" id="fuelTotalCost" class="form-input" readonly style="background: #1a1f35;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Километраж</label>
+                    <input type="number" id="fuelOdometer" class="form-input" placeholder="125000">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Тип гориво</label>
+                        <select id="fuelType" class="form-select">
+                            <option value="diesel">Дизел</option>
+                            <option value="petrol">Бензин</option>
+                            <option value="lpg">ГАЗ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Бензиностанция</label>
+                        <input type="text" id="fuelStation" class="form-input" placeholder="OMV">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Бележки</label>
+                    <input type="text" id="fuelNotes" class="form-input" placeholder="Пълен резервоар">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">💾 Запази</button>
+            </form>
         </div>
     </div>
 
@@ -385,6 +660,12 @@
 
     <script>
         var API_URL = 'https://fleet-management-backend-cwg4.onrender.com';
+        var currentVehicleId = null;
+        var currentDriverId = null;
+        var currentTripId = null;
+        var currentFuelId = null;
+        var allVehicles = [];
+        var allDrivers = [];
 
         function switchPage(page) {
             var pages = document.querySelectorAll('.page');
@@ -420,33 +701,87 @@
             }
         }
 
+        function calculateTotal() {
+            var liters = parseFloat(document.getElementById('fuelLiters').value) || 0;
+            var price = parseFloat(document.getElementById('fuelPricePerLiter').value) || 0;
+            document.getElementById('fuelTotalCost').value = (liters * price).toFixed(2);
+        }
+
         function loadVehicles() {
             fetch(API_URL + '/api/vehicles')
-                .then(function(r) { return r.json(); })
+                .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        document.getElementById('totalVehicles').textContent = data.data.length;
-                        var html = '<table><thead><tr><th>ID</th><th>Номер</th><th>Марка</th></tr></thead><tbody>';
-                        for (var i = 0; i < data.data.length; i++) {
-                            var v = data.data[i];
-                            html += '<tr><td>#' + v.id + '</td><td>' + (v.reg_number || 'N/A') + '</td><td>' + v.brand + '</td></tr>';
+                        allVehicles = data.data;
+                        document.getElementById('totalVehicles').textContent = allVehicles.length;
+                        document.getElementById('activeVehicles').textContent = allVehicles.length;
+                        document.getElementById('apiStatus').textContent = '✓';
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Регистрационен номер</th><th>Марка</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+                        
+                        for (var i = 0; i < allVehicles.length; i++) {
+                            var v = allVehicles[i];
+                            var regNum = v.reg_number || v.regNumber || 'N/A';
+                            html += '<tr>';
+                            html += '<td><strong>#' + v.id + '</strong></td>';
+                            html += '<td><strong>' + regNum + '</strong></td>';
+                            html += '<td>' + v.brand + '</td>';
+                            html += '<td><span class="badge badge-success">Активна</span></td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-warning" onclick="editVehicle(' + v.id + ', \'' + regNum + '\', \'' + v.brand + '\')">✏️</button>';
+                            html += '<button class="btn btn-sm btn-danger" onclick="deleteVehicle(' + v.id + ', \'' + regNum + '\')">🗑️</button>';
+                            html += '</td></tr>';
                         }
+                        
                         html += '</tbody></table>';
                         document.getElementById('vehiclesTable').innerHTML = html;
                     }
+                })
+                .catch(function(error) {
+                    document.getElementById('vehiclesTable').innerHTML = '<div class="loading" style="color: #ef4444;">❌ Грешка</div>';
                 });
         }
 
         function loadDrivers() {
             fetch(API_URL + '/api/drivers')
-                .then(function(r) { return r.json(); })
+                .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        var html = '<table><thead><tr><th>ID</th><th>Име</th><th>Телефон</th></tr></thead><tbody>';
-                        for (var i = 0; i < data.data.length; i++) {
-                            var d = data.data[i];
-                            html += '<tr><td>#' + d.id + '</td><td>' + d.name + '</td><td>' + (d.phone || '-') + '</td></tr>';
+                        allDrivers = data.data;
+                        document.getElementById('totalDrivers').textContent = allDrivers.length;
+                        
+                        var activeCount = 0;
+                        for (var i = 0; i < allDrivers.length; i++) {
+                            if (allDrivers[i].status === 'active') activeCount++;
                         }
+                        document.getElementById('activeDrivers').textContent = activeCount;
+                        
+                        fetch(API_URL + '/api/assignments')
+                            .then(function(response) { return response.json(); })
+                            .then(function(assignData) {
+                                if (assignData.success) {
+                                    document.getElementById('assignedDrivers').textContent = assignData.data.length;
+                                }
+                            });
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Име</th><th>Телефон</th><th>Книжка</th><th>Категория</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+                        
+                        for (var i = 0; i < allDrivers.length; i++) {
+                            var d = allDrivers[i];
+                            var badgeClass = d.license_category === 'CE' ? 'badge-success' : 'badge-warning';
+                            html += '<tr>';
+                            html += '<td><strong>#' + d.id + '</strong></td>';
+                            html += '<td><strong>' + d.name + '</strong></td>';
+                            html += '<td>' + (d.phone || '-') + '</td>';
+                            html += '<td>' + (d.license_number || '-') + '</td>';
+                            html += '<td><span class="badge ' + badgeClass + '">' + (d.license_category || '-') + '</span></td>';
+                            html += '<td><span class="badge badge-success">Активен</span></td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-warning" onclick=\'editDriver(' + JSON.stringify(d) + ')\'>✏️</button>';
+                            html += '<button class="btn btn-sm btn-danger" onclick="deleteDriver(' + d.id + ', \'' + d.name + '\')">🗑️</button>';
+                            html += '</td></tr>';
+                        }
+                        
                         html += '</tbody></table>';
                         document.getElementById('driversTable').innerHTML = html;
                     }
@@ -455,14 +790,35 @@
 
         function loadAssignments() {
             fetch(API_URL + '/api/assignments')
-                .then(function(r) { return r.json(); })
+                .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Водач</th></tr></thead><tbody>';
-                        for (var i = 0; i < data.data.length; i++) {
-                            var a = data.data[i];
-                            html += '<tr><td>#' + a.id + '</td><td>' + (a.vehicle_reg_number || 'N/A') + '</td><td>' + (a.driver_name || 'N/A') + '</td></tr>';
+                        var assignments = data.data;
+                        document.getElementById('totalAssignments').textContent = assignments.length;
+                        document.getElementById('assignedVehicles').textContent = assignments.length;
+                        document.getElementById('assignedDriversCount').textContent = assignments.length;
+                        
+                        if (assignments.length === 0) {
+                            document.getElementById('assignmentsTable').innerHTML = '<div class="loading">Няма активни назначения</div>';
+                            return;
                         }
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Водач</th><th>От дата</th><th>Бележки</th><th>Действия</th></tr></thead><tbody>';
+                        
+                        for (var i = 0; i < assignments.length; i++) {
+                            var a = assignments[i];
+                            var assignedDate = new Date(a.assigned_at).toLocaleDateString('bg-BG');
+                            html += '<tr>';
+                            html += '<td><strong>#' + a.id + '</strong></td>';
+                            html += '<td><span class="badge badge-info">' + (a.vehicle_reg_number || 'N/A') + '</span></td>';
+                            html += '<td><span class="badge badge-success">' + (a.driver_name || 'N/A') + '</span></td>';
+                            html += '<td>' + assignedDate + '</td>';
+                            html += '<td>' + (a.notes || '-') + '</td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-danger" onclick="endAssignment(' + a.id + ', \'' + (a.driver_name || 'N/A') + '\', \'' + (a.vehicle_reg_number || 'N/A') + '\')">⛔ Прекрати</button>';
+                            html += '</td></tr>';
+                        }
+                        
                         html += '</tbody></table>';
                         document.getElementById('assignmentsTable').innerHTML = html;
                     }
@@ -471,34 +827,55 @@
 
         function loadTrips() {
             fetch(API_URL + '/api/trips')
-                .then(function(r) { return r.json(); })
+                .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
                         var trips = data.data;
                         document.getElementById('totalTrips').textContent = trips.length;
                         
-                        var totalRevenue = 0;
-                        var totalProfit = 0;
+                        var activeCount = 0;
+                        var completedCount = 0;
+                        var totalDistance = 0;
+                        
                         for (var i = 0; i < trips.length; i++) {
-                            if (trips[i].price) totalRevenue += parseFloat(trips[i].price);
-                            if (trips[i].profit) totalProfit += parseFloat(trips[i].profit);
+                            if (trips[i].status === 'active') activeCount++;
+                            if (trips[i].status === 'completed') completedCount++;
+                            if (trips[i].distance_km) totalDistance += parseFloat(trips[i].distance_km);
                         }
                         
-                        document.getElementById('totalRevenue').textContent = Math.round(totalRevenue) + ' €';
-                        document.getElementById('totalProfit').textContent = Math.round(totalProfit) + ' €';
+                        document.getElementById('activeTrips').textContent = activeCount;
+                        document.getElementById('completedTrips').textContent = completedCount;
+                        document.getElementById('totalKm').textContent = Math.round(totalDistance);
                         
-                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Маршрут</th><th>Цена</th><th>Печалба</th></tr></thead><tbody>';
+                        if (trips.length === 0) {
+                            document.getElementById('tripsTable').innerHTML = '<div class="loading">Няма записани курсове</div>';
+                            return;
+                        }
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Водач</th><th>Начало</th><th>Край</th><th>Км</th><th>Маршрут</th><th>Статус</th><th>Действия</th></tr></thead><tbody>';
+                        
                         for (var i = 0; i < trips.length; i++) {
                             var t = trips[i];
-                            var price = t.price ? parseFloat(t.price).toFixed(2) + ' €' : '-';
-                            var profit = t.profit ? parseFloat(t.profit).toFixed(2) + ' €' : '-';
-                            var profitClass = t.profit > 0 ? 'badge-success' : 'badge-warning';
-                            html += '<tr><td>#' + t.id + '</td>';
-                            html += '<td>' + (t.vehicle_reg_number || 'N/A') + '</td>';
+                            var startDate = new Date(t.start_time).toLocaleString('bg-BG');
+                            var endDate = t.end_time ? new Date(t.end_time).toLocaleString('bg-BG') : '-';
+                            var statusBadge = t.status === 'completed' ? 'badge-success' : 'badge-warning';
+                            var statusText = t.status === 'completed' ? 'Завършен' : 'Активен';
+                            
+                            html += '<tr>';
+                            html += '<td><strong>#' + t.id + '</strong></td>';
+                            html += '<td><span class="badge badge-info">' + (t.vehicle_reg_number || 'N/A') + '</span></td>';
+                            html += '<td>' + (t.driver_name || 'N/A') + '</td>';
+                            html += '<td>' + startDate + '</td>';
+                            html += '<td>' + endDate + '</td>';
+                            html += '<td><strong>' + (t.distance_km ? Math.round(t.distance_km) + ' км' : '-') + '</strong></td>';
                             html += '<td>' + (t.route || '-') + '</td>';
-                            html += '<td><strong>' + price + '</strong></td>';
-                            html += '<td><span class="badge ' + profitClass + '">' + profit + '</span></td></tr>';
+                            html += '<td><span class="badge ' + statusBadge + '">' + statusText + '</span></td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-warning" onclick=\'editTrip(' + JSON.stringify(t) + ')\'>✏️</button>';
+                            html += '<button class="btn btn-sm btn-danger" onclick="deleteTrip(' + t.id + ')">🗑️</button>';
+                            html += '</td></tr>';
                         }
+                        
                         html += '</tbody></table>';
                         document.getElementById('tripsTable').innerHTML = html;
                     }
@@ -507,43 +884,514 @@
 
         function loadFuel() {
             fetch(API_URL + '/api/fuel')
-                .then(function(r) { return r.json(); })
+                .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        var fuel = data.data;
-                        document.getElementById('totalFuelRecords').textContent = fuel.length;
+                        var fuelRecords = data.data;
+                        document.getElementById('totalFuelRecords').textContent = fuelRecords.length;
                         
                         var totalLiters = 0;
                         var totalCost = 0;
                         
-                        for (var i = 0; i < fuel.length; i++) {
-                            totalLiters += parseFloat(fuel[i].liters || 0);
-                            var cost = fuel[i].total_cost_eur || fuel[i].total_cost || 0;
+                        for (var i = 0; i < fuelRecords.length; i++) {
+                            totalLiters += parseFloat(fuelRecords[i].liters);
+                            var cost = fuelRecords[i].total_cost_eur || fuelRecords[i].total_cost || 0;
                             totalCost += parseFloat(cost);
                         }
                         
                         document.getElementById('totalLiters').textContent = Math.round(totalLiters);
                         document.getElementById('totalCost').textContent = Math.round(totalCost) + ' €';
-                        document.getElementById('avgPrice').textContent = fuel.length > 0 ? (totalCost / totalLiters).toFixed(2) + ' €' : '-';
+                        document.getElementById('avgPrice').textContent = fuelRecords.length > 0 ? (totalCost / totalLiters).toFixed(2) + ' €' : '-';
                         
-                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Дата</th><th>Литри</th><th>Цена/л</th><th>Сума</th></tr></thead><tbody>';
-                        for (var i = 0; i < fuel.length; i++) {
-                            var f = fuel[i];
-                            var date = new Date(f.fuel_date).toLocaleDateString('bg-BG');
-                            var pricePerLiter = f.price_per_liter_eur || f.price_per_liter || 0;
-                            var totalCost = f.total_cost_eur || f.total_cost || 0;
-                            
-                            html += '<tr><td>#' + f.id + '</td>';
-                            html += '<td>' + (f.vehicle_reg_number || 'N/A') + '</td>';
-                            html += '<td>' + date + '</td>';
-                            html += '<td>' + parseFloat(f.liters).toFixed(2) + ' л</td>';
-                            html += '<td>' + parseFloat(pricePerLiter).toFixed(2) + ' €</td>';
-                            html += '<td><strong>' + parseFloat(totalCost).toFixed(2) + ' €</strong></td></tr>';
+                        if (fuelRecords.length === 0) {
+                            document.getElementById('fuelTable').innerHTML = '<div class="loading">Няма записани зареждания</div>';
+                            return;
                         }
+                        
+                        var html = '<table><thead><tr><th>ID</th><th>Машина</th><th>Дата</th><th>Литри</th><th>Цена/л</th><th>Сума</th><th>Км</th><th>Бензиностанция</th><th>Действия</th></tr></thead><tbody>';
+                        
+                        for (var i = 0; i < fuelRecords.length; i++) {
+                            var f = fuelRecords[i];
+                            var fuelDate = new Date(f.fuel_date).toLocaleString('bg-BG');
+                            var pricePerLiter = f.price_per_liter_eur || f.price_per_liter || 0;
+                            var totalCostVal = f.total_cost_eur || f.total_cost || 0;
+                            
+                            html += '<tr>';
+                            html += '<td><strong>#' + f.id + '</strong></td>';
+                            html += '<td><span class="badge badge-info">' + (f.vehicle_reg_number || 'N/A') + '</span></td>';
+                            html += '<td>' + fuelDate + '</td>';
+                            html += '<td><strong>' + parseFloat(f.liters).toFixed(2) + ' л</strong></td>';
+                            html += '<td>' + parseFloat(pricePerLiter).toFixed(2) + ' €</td>';
+                            html += '<td><strong>' + parseFloat(totalCostVal).toFixed(2) + ' €</strong></td>';
+                            html += '<td>' + (f.odometer_reading || '-') + '</td>';
+                            html += '<td>' + (f.station_name || '-') + '</td>';
+                            html += '<td class="action-buttons">';
+                            html += '<button class="btn btn-sm btn-warning" onclick=\'editFuel(' + JSON.stringify(f) + ')\'>✏️</button>';
+                            html += '<button class="btn btn-sm btn-danger" onclick="deleteFuel(' + f.id + ')">🗑️</button>';
+                            html += '</td></tr>';
+                        }
+                        
                         html += '</tbody></table>';
                         document.getElementById('fuelTable').innerHTML = html;
                     }
                 });
+        }
+
+        // Vehicle functions
+        function openAddVehicleModal() {
+            currentVehicleId = null;
+            document.getElementById('vehicleModalTitle').textContent = '➕ Добави машина';
+            document.getElementById('vehicleForm').reset();
+            document.getElementById('vehicleModal').classList.add('show');
+        }
+
+        function editVehicle(id, regNumber, brand) {
+            currentVehicleId = id;
+            document.getElementById('vehicleModalTitle').textContent = '✏️ Редактирай машина';
+            document.getElementById('regNumber').value = regNumber;
+            document.getElementById('brand').value = brand;
+            document.getElementById('vehicleModal').classList.add('show');
+        }
+
+        function closeVehicleModal() {
+            document.getElementById('vehicleModal').classList.remove('show');
+        }
+
+        function saveVehicle(event) {
+            event.preventDefault();
+            var regNumber = document.getElementById('regNumber').value;
+            var brand = document.getElementById('brand').value;
+            var url = currentVehicleId ? API_URL + '/api/vehicles/' + currentVehicleId : API_URL + '/api/vehicles';
+            var method = currentVehicleId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ regNumber: regNumber, brand: brand })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(currentVehicleId ? '✅ Обновена!' : '✅ Добавена!');
+                    closeVehicleModal();
+                    loadVehicles();
+                }
+            })
+            .catch(function(error) {
+                showToast('❌ Грешка', 'error');
+            });
+        }
+
+        function deleteVehicle(id, regNumber) {
+            if (!confirm('Изтрий ' + regNumber + '?')) return;
+            fetch(API_URL + '/api/vehicles/' + id, { method: 'DELETE' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('✅ Изтрита!');
+                        loadVehicles();
+                    }
+                });
+        }
+
+        // Driver functions
+        function openAddDriverModal() {
+            currentDriverId = null;
+            document.getElementById('driverModalTitle').textContent = '➕ Добави водач';
+            document.getElementById('driverForm').reset();
+            document.getElementById('driverModal').classList.add('show');
+        }
+
+        function editDriver(driver) {
+            currentDriverId = driver.id;
+            document.getElementById('driverModalTitle').textContent = '✏️ Редактирай водач';
+            document.getElementById('driverName').value = driver.name;
+            document.getElementById('driverPhone').value = driver.phone || '';
+            document.getElementById('licenseNumber').value = driver.license_number || '';
+            document.getElementById('licenseCategory').value = driver.license_category || '';
+            document.getElementById('hireDate').value = driver.hire_date || '';
+            document.getElementById('driverModal').classList.add('show');
+        }
+
+        function closeDriverModal() {
+            document.getElementById('driverModal').classList.remove('show');
+        }
+
+        function saveDriver(event) {
+            event.preventDefault();
+            var driverData = {
+                name: document.getElementById('driverName').value,
+                phone: document.getElementById('driverPhone').value,
+                licenseNumber: document.getElementById('licenseNumber').value,
+                licenseCategory: document.getElementById('licenseCategory').value,
+                hireDate: document.getElementById('hireDate').value
+            };
+            
+            var url = currentDriverId ? API_URL + '/api/drivers/' + currentDriverId : API_URL + '/api/drivers';
+            var method = currentDriverId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(driverData)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(currentDriverId ? '✅ Обновен!' : '✅ Добавен!');
+                    closeDriverModal();
+                    loadDrivers();
+                }
+            });
+        }
+
+        function deleteDriver(id, name) {
+            if (!confirm('Изтрий ' + name + '?')) return;
+            fetch(API_URL + '/api/drivers/' + id, { method: 'DELETE' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('✅ Изтрит!');
+                        loadDrivers();
+                    }
+                });
+        }
+
+        // Assignment functions
+        function openAddAssignmentModal() {
+            Promise.all([
+                fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/assignments').then(function(r) { return r.json(); })
+            ]).then(function(results) {
+                var vehicles = results[0].data || [];
+                var drivers = results[1].data || [];
+                var assignments = results[2].data || [];
+                
+                var assignedVehicleIds = assignments.map(function(a) { return a.vehicle_id; });
+                var assignedDriverIds = assignments.map(function(a) { return a.driver_id; });
+                
+                var vehicleSelect = document.getElementById('assignVehicleId');
+                vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                for (var i = 0; i < vehicles.length; i++) {
+                    var v = vehicles[i];
+                    if (assignedVehicleIds.indexOf(v.id) === -1) {
+                        var regNum = v.reg_number || v.regNumber || 'N/A';
+                        vehicleSelect.innerHTML += '<option value="' + v.id + '">' + regNum + ' - ' + v.brand + '</option>';
+                    }
+                }
+                
+                var driverSelect = document.getElementById('assignDriverId');
+                driverSelect.innerHTML = '<option value="">Избери водач</option>';
+                for (var i = 0; i < drivers.length; i++) {
+                    var d = drivers[i];
+                    if (assignedDriverIds.indexOf(d.id) === -1) {
+                        driverSelect.innerHTML += '<option value="' + d.id + '">' + d.name + ' (' + (d.license_category || 'N/A') + ')</option>';
+                    }
+                }
+                
+                document.getElementById('assignmentForm').reset();
+                document.getElementById('assignmentModal').classList.add('show');
+            });
+        }
+
+        function closeAssignmentModal() {
+            document.getElementById('assignmentModal').classList.remove('show');
+        }
+
+        function saveAssignment(event) {
+            event.preventDefault();
+            var assignmentData = {
+                vehicleId: parseInt(document.getElementById('assignVehicleId').value),
+                driverId: parseInt(document.getElementById('assignDriverId').value),
+                notes: document.getElementById('assignNotes').value
+            };
+
+            fetch(API_URL + '/api/assignments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentData)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast('✅ Назначено!');
+                    closeAssignmentModal();
+                    loadAssignments();
+                    loadDrivers();
+                }
+            });
+        }
+
+        function endAssignment(id, driverName, vehicleReg) {
+            if (!confirm('Прекрати назначението на ' + driverName + ' към ' + vehicleReg + '?')) return;
+            
+            fetch(API_URL + '/api/assignments/' + id + '/end', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast('✅ Назначението е прекратено!');
+                    loadAssignments();
+                    loadDrivers();
+                }
+            });
+        }
+
+        // Trip functions
+        function openAddTripModal() {
+            currentTripId = null;
+            document.getElementById('tripModalTitle').textContent = '➕ Нов курс';
+            
+            Promise.all([
+                fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); })
+            ]).then(function(results) {
+                var vehicles = results[0].data || [];
+                var drivers = results[1].data || [];
+                
+                var vehicleSelect = document.getElementById('tripVehicleId');
+                vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                for (var i = 0; i < vehicles.length; i++) {
+                    var v = vehicles[i];
+                    var regNum = v.reg_number || v.regNumber || 'N/A';
+                    vehicleSelect.innerHTML += '<option value="' + v.id + '">' + regNum + ' - ' + v.brand + '</option>';
+                }
+                
+                var driverSelect = document.getElementById('tripDriverId');
+                driverSelect.innerHTML = '<option value="">Избери водач</option>';
+                for (var i = 0; i < drivers.length; i++) {
+                    var d = drivers[i];
+                    driverSelect.innerHTML += '<option value="' + d.id + '">' + d.name + '</option>';
+                }
+                
+                document.getElementById('tripForm').reset();
+                var now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                document.getElementById('tripStartTime').value = now.toISOString().slice(0, 16);
+                
+                document.getElementById('tripModal').classList.add('show');
+            });
+        }
+
+        function editTrip(trip) {
+            currentTripId = trip.id;
+            document.getElementById('tripModalTitle').textContent = '✏️ Редактирай курс';
+            
+            Promise.all([
+                fetch(API_URL + '/api/vehicles').then(function(r) { return r.json(); }),
+                fetch(API_URL + '/api/drivers').then(function(r) { return r.json(); })
+            ]).then(function(results) {
+                var vehicles = results[0].data || [];
+                var drivers = results[1].data || [];
+                
+                var vehicleSelect = document.getElementById('tripVehicleId');
+                vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                for (var i = 0; i < vehicles.length; i++) {
+                    var v = vehicles[i];
+                    var regNum = v.reg_number || v.regNumber || 'N/A';
+                    vehicleSelect.innerHTML += '<option value="' + v.id + '"' + (v.id === trip.vehicle_id ? ' selected' : '') + '>' + regNum + ' - ' + v.brand + '</option>';
+                }
+                
+                var driverSelect = document.getElementById('tripDriverId');
+                driverSelect.innerHTML = '<option value="">Избери водач</option>';
+                for (var i = 0; i < drivers.length; i++) {
+                    var d = drivers[i];
+                    driverSelect.innerHTML += '<option value="' + d.id + '"' + (d.id === trip.driver_id ? ' selected' : '') + '>' + d.name + '</option>';
+                }
+                
+                var startDate = new Date(trip.start_time);
+                startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+                document.getElementById('tripStartTime').value = startDate.toISOString().slice(0, 16);
+                
+                if (trip.end_time) {
+                    var endDate = new Date(trip.end_time);
+                    endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+                    document.getElementById('tripEndTime').value = endDate.toISOString().slice(0, 16);
+                }
+                
+                document.getElementById('tripStartOdometer').value = trip.start_odometer || '';
+                document.getElementById('tripEndOdometer').value = trip.end_odometer || '';
+                document.getElementById('tripRoute').value = trip.route || '';
+                document.getElementById('tripNotes').value = trip.notes || '';
+                
+                document.getElementById('tripModal').classList.add('show');
+            });
+        }
+
+        function closeTripModal() {
+            document.getElementById('tripModal').classList.remove('show');
+        }
+
+        function saveTrip(event) {
+            event.preventDefault();
+            
+            var tripData = {
+                vehicleId: parseInt(document.getElementById('tripVehicleId').value),
+                driverId: parseInt(document.getElementById('tripDriverId').value),
+                startTime: document.getElementById('tripStartTime').value,
+                endTime: document.getElementById('tripEndTime').value || null,
+                startOdometer: parseInt(document.getElementById('tripStartOdometer').value) || null,
+                endOdometer: parseInt(document.getElementById('tripEndOdometer').value) || null,
+                route: document.getElementById('tripRoute').value,
+                notes: document.getElementById('tripNotes').value
+            };
+            
+            var url = currentTripId ? API_URL + '/api/trips/' + currentTripId : API_URL + '/api/trips';
+            var method = currentTripId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tripData)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(currentTripId ? '✅ Обновен!' : '✅ Добавен!');
+                    closeTripModal();
+                    loadTrips();
+                }
+            });
+        }
+
+        function deleteTrip(id) {
+            if (!confirm('Изтрий този курс?')) return;
+            fetch(API_URL + '/api/trips/' + id, { method: 'DELETE' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('✅ Изтрит!');
+                        loadTrips();
+                    }
+                });
+        }
+
+        // Fuel functions
+        function openAddFuelModal() {
+            currentFuelId = null;
+            document.getElementById('fuelModalTitle').textContent = '➕ Ново зареждане';
+            
+            fetch(API_URL + '/api/vehicles')
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    var vehicles = result.data || [];
+                    
+                    var vehicleSelect = document.getElementById('fuelVehicleId');
+                    vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                    for (var i = 0; i < vehicles.length; i++) {
+                        var v = vehicles[i];
+                        var regNum = v.reg_number || v.regNumber || 'N/A';
+                        vehicleSelect.innerHTML += '<option value="' + v.id + '">' + regNum + ' - ' + v.brand + '</option>';
+                    }
+                    
+                    document.getElementById('fuelForm').reset();
+                    var now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    document.getElementById('fuelDate').value = now.toISOString().slice(0, 16);
+                    
+                    document.getElementById('fuelModal').classList.add('show');
+                });
+        }
+
+        function editFuel(fuel) {
+            currentFuelId = fuel.id;
+            document.getElementById('fuelModalTitle').textContent = '✏️ Редактирай зареждане';
+            
+            fetch(API_URL + '/api/vehicles')
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    var vehicles = result.data || [];
+                    
+                    var vehicleSelect = document.getElementById('fuelVehicleId');
+                    vehicleSelect.innerHTML = '<option value="">Избери машина</option>';
+                    for (var i = 0; i < vehicles.length; i++) {
+                        var v = vehicles[i];
+                        var regNum = v.reg_number || v.regNumber || 'N/A';
+                        vehicleSelect.innerHTML += '<option value="' + v.id + '"' + (v.id === fuel.vehicle_id ? ' selected' : '') + '>' + regNum + ' - ' + v.brand + '</option>';
+                    }
+                    
+                    var fuelDate = new Date(fuel.fuel_date);
+                    fuelDate.setMinutes(fuelDate.getMinutes() - fuelDate.getTimezoneOffset());
+                    document.getElementById('fuelDate').value = fuelDate.toISOString().slice(0, 16);
+                    document.getElementById('fuelLiters').value = fuel.liters;
+                    document.getElementById('fuelPricePerLiter').value = fuel.price_per_liter;
+                    document.getElementById('fuelTotalCost').value = fuel.total_cost;
+                    document.getElementById('fuelOdometer').value = fuel.odometer_reading || '';
+                    document.getElementById('fuelType').value = fuel.fuel_type || 'diesel';
+                    document.getElementById('fuelStation').value = fuel.station_name || '';
+                    document.getElementById('fuelNotes').value = fuel.notes || '';
+                    
+                    document.getElementById('fuelModal').classList.add('show');
+                });
+        }
+
+        function closeFuelModal() {
+            document.getElementById('fuelModal').classList.remove('show');
+        }
+
+        function saveFuel(event) {
+            event.preventDefault();
+            
+            var fuelData = {
+                vehicleId: parseInt(document.getElementById('fuelVehicleId').value),
+                fuelDate: document.getElementById('fuelDate').value,
+                liters: parseFloat(document.getElementById('fuelLiters').value),
+                pricePerLiter: parseFloat(document.getElementById('fuelPricePerLiter').value),
+                odometerReading: parseInt(document.getElementById('fuelOdometer').value) || null,
+                fuelType: document.getElementById('fuelType').value,
+                stationName: document.getElementById('fuelStation').value,
+                notes: document.getElementById('fuelNotes').value
+            };
+            
+            var url = currentFuelId ? API_URL + '/api/fuel/' + currentFuelId : API_URL + '/api/fuel';
+            var method = currentFuelId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(fuelData)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(currentFuelId ? '✅ Обновено!' : '✅ Добавено!');
+                    closeFuelModal();
+                    loadFuel();
+                }
+            });
+        }
+
+        function deleteFuel(id) {
+            if (!confirm('Изтрий това зареждане?')) return;
+            fetch(API_URL + '/api/fuel/' + id, { method: 'DELETE' })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        showToast('✅ Изтрито!');
+                        loadFuel();
+                    }
+                });
+        }
+
+        function showToast(message, type) {
+            var toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type === 'error') toast.className += ' error';
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        window.onclick = function(event) {
+            if (event.target.id === 'vehicleModal') closeVehicleModal();
+            if (event.target.id === 'driverModal') closeDriverModal();
+            if (event.target.id === 'assignmentModal') closeAssignmentModal();
+            if (event.target.id === 'tripModal') closeTripModal();
+            if (event.target.id === 'fuelModal') closeFuelModal();
         }
 
         loadVehicles();
